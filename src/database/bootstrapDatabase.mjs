@@ -15,7 +15,10 @@ export async function bootstrapDatabase() {
     "synonym_mappings",
     "stream_checkpoints",
     "audit_logs",
-    "sensor_telemetry"
+    "sensor_telemetry",
+    "processed_events",
+    "agent_registry",
+    "live_slo_metrics"
   ];
 
   const existingCollections = (await db.listCollections().toArray()).map(c => c.name);
@@ -104,6 +107,32 @@ export async function bootstrapDatabase() {
   await db.collection("audit_logs").createIndex(
     { timestamp: -1, resourceId: 1 },
     { name: "idx_audit_timeline" }
+  );
+
+  // 4. Agent Heartbeat Registry with MongoDB Native TTL Index (30s Expiry)
+  console.log("\n[CONSENSUS] Creating Agent Registry TTL Index...");
+  await db.collection("agent_registry").createIndex(
+    { lastHeartbeat: 1 },
+    { expireAfterSeconds: 30, name: "idx_agent_ttl_heartbeat" }
+  );
+  await db.collection("agent_registry").createIndex(
+    { agentId: 1 },
+    { unique: true, name: "idx_agent_id_uniq" }
+  );
+
+  // 5. Change Stream Event Idempotency & SLO Telemetry Indexes
+  console.log("\n[RELIABILITY] Creating Event Idempotency & SLO Indexes...");
+  await db.collection("processed_events").createIndex(
+    { eventId: 1 },
+    { unique: true, name: "idx_event_dedup_uniq" }
+  );
+  await db.collection("processed_events").createIndex(
+    { processedAt: 1 },
+    { expireAfterSeconds: 86400, name: "idx_processed_events_ttl" } // 24-hr TTL
+  );
+  await db.collection("live_slo_metrics").createIndex(
+    { recordedAt: -1 },
+    { name: "idx_slo_recorded_ts" }
   );
 
   console.log("\n================================================================================");

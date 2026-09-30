@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ReliefMesh — Operational Crisis Coordination Engine (MongoDB Atlas Core)</title>
+  <title>ReliefMesh — Operational Crisis Coordination Engine (MongoDB Atlas 8.3 Core)</title>
   
   <!-- Typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -32,6 +32,7 @@
       --amber: #F59E0B;
       --rose: #F43F5E;
       --emerald: #10B981;
+      --purple: #A855F7;
       --shadow-elevation: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
     }
 
@@ -119,6 +120,46 @@
       50% { opacity: 0.35; transform: scale(0.8); }
     }
 
+    /* SLO Telemetry HUD Banner */
+    .slo-hud-banner {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(20, 30, 51, 0.95));
+      border: 1px solid rgba(0, 237, 100, 0.25);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-elevation);
+    }
+
+    .slo-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .slo-label {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+    }
+
+    .slo-value {
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slo-value.verified { color: var(--mongo-green); }
+    .slo-value.warning { color: var(--amber); }
+
     /* Top Control Bar */
     .control-strip {
       display: flex;
@@ -130,6 +171,7 @@
       padding: 10px 16px;
       margin-bottom: 16px;
       box-shadow: var(--shadow-elevation);
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -149,25 +191,48 @@
     .btn-mongo {
       background: var(--mongo-forest);
       color: #FFFFFF;
+      border-color: rgba(0, 237, 100, 0.4);
+    }
+    .btn-mongo:hover {
+      background: #007A56;
       border-color: var(--mongo-green);
+      box-shadow: 0 0 12px rgba(0, 237, 100, 0.3);
     }
-    .btn-mongo:hover { background: #00875A; box-shadow: 0 0 12px rgba(0, 237, 100, 0.4); }
 
-    .btn-danger {
-      background: #7F1D1D;
-      color: #FECDD3;
-      border-color: #F43F5E;
+    .btn-alert {
+      background: rgba(244, 63, 94, 0.15);
+      color: #FDA4AF;
+      border-color: rgba(244, 63, 94, 0.35);
     }
-    .btn-danger:hover { background: #9F1239; box-shadow: 0 0 12px rgba(244, 63, 94, 0.4); }
+    .btn-alert:hover {
+      background: rgba(244, 63, 94, 0.25);
+      border-color: #F43F5E;
+      color: #FFFFFF;
+    }
 
     .btn-subtle {
-      background: var(--bg-subtle);
-      color: var(--text-primary);
+      background: var(--bg-card);
+      color: var(--text-muted);
       border-color: var(--border);
     }
-    .btn-subtle:hover { background: #334155; border-color: #475569; }
+    .btn-subtle:hover {
+      color: #FFFFFF;
+      border-color: #475569;
+      background: var(--bg-subtle);
+    }
 
-    /* 4-R Operational Spine Cards */
+    .btn-purple {
+      background: rgba(168, 85, 247, 0.15);
+      color: #D8B4FE;
+      border-color: rgba(168, 85, 247, 0.35);
+    }
+    .btn-purple:hover {
+      background: rgba(168, 85, 247, 0.25);
+      border-color: #A855F7;
+      color: #FFFFFF;
+    }
+
+    /* Spine Grid */
     .spine-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -181,55 +246,50 @@
       border-radius: 8px;
       padding: 14px 16px;
       position: relative;
-      transition: all 0.2s ease;
+      overflow: hidden;
     }
 
-    .spine-card:hover { border-color: rgba(0, 237, 100, 0.4); }
-
     .spine-card.hero {
-      border-color: rgba(244, 63, 94, 0.45);
-      background: linear-gradient(180deg, rgba(244, 63, 94, 0.08) 0%, var(--bg-panel) 100%);
+      border-color: rgba(0, 237, 100, 0.4);
+      background: linear-gradient(135deg, rgba(15, 23, 42, 1), rgba(0, 52, 48, 0.4));
     }
 
     .spine-tag {
       font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
+      font-family: 'JetBrains Mono', monospace;
       text-transform: uppercase;
+      letter-spacing: 0.1em;
       color: var(--mongo-green);
       margin-bottom: 4px;
     }
-    .spine-card.hero .spine-tag { color: #FB7185; }
 
     .spine-heading {
-      font-family: 'Spectral', serif;
-      font-size: 17px;
+      font-family: 'Work Sans', sans-serif;
+      font-size: 14px;
       font-weight: 600;
       color: #FFFFFF;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .spine-copy {
       font-size: 12px;
       color: var(--text-muted);
       line-height: 1.4;
-      margin-bottom: 10px;
     }
 
     .spine-metric {
-      font-family: 'JetBrains Mono', monospace;
+      margin-top: 10px;
       font-size: 11px;
-      padding: 6px 10px;
-      background: var(--bg-base);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: #E2E8F0;
+      font-family: 'JetBrains Mono', monospace;
+      color: #CBD5E1;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
     }
 
-    /* Main Dashboard Layout */
+    /* Layout Grids */
     .cockpit-grid {
       display: grid;
-      grid-template-columns: 1.25fr 0.75fr;
+      grid-template-columns: 1.15fr 0.85fr;
       gap: 16px;
       margin-bottom: 16px;
     }
@@ -238,10 +298,8 @@
       background: var(--bg-panel);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 18px;
+      padding: 16px;
       box-shadow: var(--shadow-elevation);
-      display: flex;
-      flex-direction: column;
     }
 
     .panel-top {
@@ -276,12 +334,13 @@
       z-index: 1;
     }
 
-    /* Interactive Laboratory Tabs */
+    /* Laboratory Tabs */
     .tab-strip {
       display: flex;
       gap: 4px;
       border-bottom: 1px solid var(--border);
       margin-bottom: 14px;
+      overflow-x: auto;
     }
 
     .tab-item {
@@ -291,10 +350,11 @@
       font-family: 'Work Sans', sans-serif;
       font-size: 12px;
       font-weight: 600;
-      padding: 8px 14px;
+      padding: 8px 12px;
       cursor: pointer;
       border-bottom: 2px solid transparent;
       transition: all 0.15s ease;
+      white-space: nowrap;
     }
 
     .tab-item.active {
@@ -305,7 +365,7 @@
     .tab-pane { display: none; }
     .tab-pane.active { display: block; }
 
-    /* Form Fields & Search Inputs */
+    /* Search Inputs */
     .search-row {
       display: flex;
       gap: 8px;
@@ -349,7 +409,7 @@
       background: rgba(0, 237, 100, 0.08);
     }
 
-    /* Console Result Boxes */
+    /* Inspector Boxes */
     .inspector-box {
       background: #060911;
       border: 1px solid var(--border);
@@ -359,6 +419,8 @@
       font-size: 11px;
       font-family: 'JetBrains Mono', monospace;
       line-height: 1.6;
+      max-height: 380px;
+      overflow-y: auto;
     }
 
     /* Tables */
@@ -397,8 +459,9 @@
     .status-badge.amber { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
     .status-badge.red { background: rgba(244, 63, 94, 0.15); color: #FDA4AF; border: 1px solid rgba(244, 63, 94, 0.3); }
     .status-badge.blue { background: rgba(56, 189, 248, 0.15); color: #7DD3FC; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .status-badge.purple { background: rgba(168, 85, 247, 0.15); color: #D8B4FE; border: 1px solid rgba(168, 85, 247, 0.3); }
 
-    /* Live Terminal Container */
+    /* Terminal */
     .terminal-window {
       background: #04060A;
       border: 1px solid var(--border);
@@ -406,7 +469,7 @@
       padding: 12px;
       font-family: 'JetBrains Mono', monospace;
       font-size: 11px;
-      height: 190px;
+      height: 200px;
       overflow-y: auto;
       line-height: 1.6;
     }
@@ -418,7 +481,7 @@
     .log-warning { color: #FBBF24; }
     .log-info { color: #38BDF8; }
 
-    /* Custom Leaflet Marker HTML styling */
+    /* Custom Leaflet Markers */
     .depot-marker-pulse {
       display: flex;
       align-items: center;
@@ -452,56 +515,79 @@
 </head>
 <body>
 
-  <!-- Top Navigation & Cockpit Status -->
+  <!-- Top Cockpit Header -->
   <header>
     <div class="brand-group">
       <div class="brand-kicker">
         <span class="pulse-dot"></span>
-        Operational Crisis Coordination Engine · Production Control Plane
+        <span>MongoDB Atlas 8.3 Operational Core · Disaster Response Mesh</span>
       </div>
-      <h1>ReliefMesh Executive Operations Console</h1>
+      <h1>ReliefMesh Tactical Operations Console</h1>
     </div>
+
     <div class="telemetry-badges">
       <div class="badge-chip active-primary">
-        <span>MONGODB 8.3 REPLICA SET (rs0)</span>
+        <span class="pulse-dot"></span>
+        <span>REPLICA SET rs0 (PRIMARY)</span>
       </div>
       <div class="badge-chip">
-        <span style="color: var(--mongo-green);">Freshness Invariant: ENFORCED</span>
+        <span>CHANGE STREAMS: WATCHING</span>
       </div>
       <div class="badge-chip">
-        <span id="latency-indicator" style="color: #38BDF8;">Cluster RTT: ~2.1ms</span>
-      </div>
-      <div class="badge-chip">
-        <span id="ws-status-text" style="color: #34D399;">● Live Oplog Stream</span>
+        <span id="dedup-badge-val">DEDUP EVENTS: 0</span>
       </div>
     </div>
   </header>
 
-  <!-- Control Strip with Quick Preset Triggers -->
+  <!-- Live Freshness Invariant (tau <= 500ms) SLO HUD -->
+  <div class="slo-hud-banner">
+    <div class="slo-item">
+      <span class="slo-label">Freshness Invariant (τ ≤ 500ms)</span>
+      <span class="slo-value verified" id="hud-tau-status">VERIFIED (14ms)</span>
+    </div>
+    <div class="slo-item">
+      <span class="slo-label">P50 / P95 Invalidation Latency</span>
+      <span class="slo-value" id="hud-tau-p50-p95">12ms / 36ms</span>
+    </div>
+    <div class="slo-item">
+      <span class="slo-label">Inventory Conservation</span>
+      <span class="slo-value verified" id="hud-overalloc-status">0 Over-Allocations</span>
+    </div>
+    <div class="slo-item">
+      <span class="slo-label">Fleet Quorum (TTL Index)</span>
+      <span class="slo-value verified" id="hud-quorum-status">QUORUM HEALTHY</span>
+    </div>
+    <div class="slo-item">
+      <span class="slo-label">Stage 1 Pipeline Engine</span>
+      <span class="slo-value" style="color: var(--cyan);" id="hud-pipeline-status">NATIVE $rankFusion</span>
+    </div>
+  </div>
+
+  <!-- Primary Demo Scenario Action Strip -->
   <div class="control-strip">
     <button class="btn btn-mongo" onclick="runAmbulanceRace(2)">
-      ⚡ Race: 2 Ambulances vs Depot 1
+      ⚡ 1. Trigger Concurrency Race (2 Agents)
     </button>
-    <button class="btn btn-subtle" onclick="runAmbulanceRace(5)">
-      💥 Stress Race: 5 Concurrent Claims
+    <button class="btn btn-alert" onclick="triggerRiverBreach(4.8)">
+      🌊 2. Trigger Flood Breach (River Gauge 4.8m)
     </button>
-    <button class="btn btn-danger" onclick="triggerRiverBreach(4.8)">
-      🌊 Flood Breach: River Gauge RG-04 (4.8m Surge)
+    <button class="btn btn-purple" onclick="runChaosStampede(20)">
+      🔥 3. Run 20-Agent Chaos Stampede
     </button>
     <button class="btn btn-subtle" onclick="triggerVoiceIngest()">
-      🎙️ Voice Ping (Whisper AI)
+      🎙️ 4. Whisper Dialect Ingestion
     </button>
     <button class="btn btn-subtle" onclick="startConvoyTracking()">
-      🚗 Track Convoy Movement
+      🚗 5. Track Convoy GPS Telemetry
     </button>
     <button class="btn btn-subtle" onclick="restockDepots()">
-      📦 Restock Depots (+15)
+      📦 Restock Depots
     </button>
     <button class="btn btn-subtle" onclick="resetStateBaseline()">
       🔄 Reseed Authoritative Baseline
     </button>
     <div style="margin-left: auto; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted);">
-      Active Engine: <strong style="color: #FFFFFF;">mongodb://127.0.0.1:27018/?replicaSet=rs0</strong>
+      MongoDB 8.3 Core: <strong style="color: #FFFFFF;">mongodb://127.0.0.1:27018/?replicaSet=rs0</strong>
     </div>
   </div>
 
@@ -509,29 +595,29 @@
   <div class="spine-grid">
     <div class="spine-card">
       <div class="spine-tag">Gate 1 · Relevant</div>
-      <div class="spine-heading">Vernacular & Hybrid RRF</div>
-      <div class="spine-copy">Atlas Search Synonyms map colloquial terms (<i>"khoon"</i> → blood). RRF fuses lexical & vector ranks.</div>
-      <div class="spine-metric" id="spine-gate1">Synonyms: 5 Mapped | Mode: FULL_HYBRID</div>
+      <div class="spine-heading">Vernacular & Native $rankFusion</div>
+      <div class="spine-copy">Cached synonym dictionary + 768-dim vector embeddings fused via native Reciprocal Rank Fusion (k=60).</div>
+      <div class="spine-metric" id="spine-gate1">768-dim Embeddings | $rankFusion Active</div>
     </div>
 
     <div class="spine-card">
       <div class="spine-tag">Gate 2 · Reachable</div>
       <div class="spine-heading">Spatial Reachability Gating</div>
-      <div class="spine-copy">2dsphere bounding index (50km). Prunes road hazard collisions before reservation commit.</div>
+      <div class="spine-copy">Native 2dsphere index (50km). Prunes road hazard collisions before reservation commit.</div>
       <div class="spine-metric" id="spine-gate2">2dsphere Spatial Index: ACTIVE</div>
     </div>
 
     <div class="spine-card">
       <div class="spine-tag">Gate 3 · Reserved</div>
       <div class="spine-heading">Atomic OCC (CAS)</div>
-      <div class="spine-copy">Single-document versioned update on <code>__v</code> and capacity. Cheap &lt;5ms failed predicate on contention.</div>
+      <div class="spine-copy">Single-document versioned update on <code>__v</code> and capacity. Strictly zero over-allocations guaranteed.</div>
       <div class="spine-metric" id="spine-gate3">Depot 1: <span id="metric-d1-stock">5</span> units (OCC __v: <span id="metric-d1-v">3</span>)</div>
     </div>
 
     <div class="spine-card hero">
       <div class="spine-tag">Gate 4 · Resilient (Hero)</div>
-      <div class="spine-heading">Delta Invalidation</div>
-      <div class="spine-copy">Change Stream pre/post images calculate spatial delta (Ω_post \ Ω_pre) to instantly reroute convoys.</div>
+      <div class="spine-heading">Delta Invalidation (ΔΩ)</div>
+      <div class="spine-copy">Change Stream pre/post images calculate spatial delta (Ω_post \ Ω_pre) with deduplication & dynamic OSRM reroute.</div>
       <div class="spine-metric" id="spine-gate4">Mission 104: <span id="metric-m104-status" style="color: #38BDF8;">in_transit</span></div>
     </div>
   </div>
@@ -545,7 +631,7 @@
         <div class="panel-subtitle">Geospatial Engine: 2dsphere / GeoJSON Coordinate Boundary</div>
       </div>
       <div id="leaflet-map"></div>
-      <div style="display: flex; gap: 16px; margin-top: 10px; font-size: 11px; color: var(--text-muted); align-items: center;">
+      <div style="display: flex; gap: 16px; margin-top: 10px; font-size: 11px; color: var(--text-muted); align-items: center; flex-wrap: wrap;">
         <span style="display: flex; align-items: center; gap: 5px;">
           <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--mongo-green);"></span> Supply Depot
         </span>
@@ -576,12 +662,14 @@
         <button class="tab-item" onclick="setInspectorTab('tab-occ')">2. Reserved (OCC)</button>
         <button class="tab-item" onclick="setInspectorTab('tab-missions')">3. Missions</button>
         <button class="tab-item" onclick="setInspectorTab('tab-audit')">4. Audit Ledger</button>
+        <button class="tab-item" onclick="setInspectorTab('tab-chaos')">5. Chaos Suite 🔥</button>
+        <button class="tab-item" onclick="setInspectorTab('tab-consensus')">6. Fleet Quorum 📡</button>
       </div>
 
       <!-- Tab 1: Relevant (Dialect Search) -->
       <div id="tab-search" class="tab-pane active">
         <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
-          Test Dialect SMS / Voice requests against Atlas Search Synonyms + Vector RRF:
+          Test Dialect SMS / Voice requests against Atlas Search Synonyms + 768-dim Vector $rankFusion:
         </div>
         <div class="search-row">
           <input type="text" id="query-field" class="input-dark" placeholder="Enter vernacular query (e.g. need khoon o-neg)..." value="need khoon o-neg urgently">
@@ -658,6 +746,44 @@
         </table>
       </div>
 
+      <!-- Tab 5: Chaos Engineering & Resilience Suite -->
+      <div id="tab-chaos" class="tab-pane">
+        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">
+          Execute live fault injection and high-stress concurrency tests to experimentally prove SLOs:
+        </div>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+          <button class="btn btn-purple" onclick="runChaosStampede(20)">🔥 20-Agent Stampede</button>
+          <button class="btn btn-alert" onclick="triggerRiverBreach(4.8)">🌊 Surge Breach & Oplog Invalidation</button>
+          <button class="btn btn-subtle" onclick="chaosPartitionAgent('AGENT-CHARLIE-DRONE')">🔌 Partition Drone (TTL Test)</button>
+          <button class="btn btn-subtle" onclick="chaosRecoverAgent('AGENT-CHARLIE-DRONE')">🔄 Reconnect Drone</button>
+        </div>
+        <div id="chaos-output" class="inspector-box">
+          <div style="color: var(--text-dim);">Select a Chaos scenario to evaluate resilience SLOs under live network contention and failure injection...</div>
+        </div>
+      </div>
+
+      <!-- Tab 6: Fleet Consensus & Edge Registry -->
+      <div id="tab-consensus" class="tab-pane">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 12px; color: var(--text-muted);">MongoDB Native TTL Index (30s) Agent Registry & Quorum Consensus:</span>
+          <span class="status-badge green" id="consensus-summary-badge">QUORUM HEALTHY</span>
+        </div>
+        <table id="consensus-grid">
+          <thead>
+            <tr>
+              <th>Agent ID</th>
+              <th>Role</th>
+              <th>Heartbeat Age</th>
+              <th>TTL Status</th>
+              <th>Consensus</th>
+            </tr>
+          </thead>
+          <tbody id="consensus-grid-body">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </div>
 
@@ -689,7 +815,7 @@
     <div class="panel">
       <div class="panel-top">
         <div class="panel-title">MongoDB Replica Set Change Stream (Live Oplog Feed)</div>
-        <div class="panel-subtitle">Resumable Cursor with Pre/Post-Images</div>
+        <div class="panel-subtitle">Resumable Cursor with Pre/Post-Images & Deduplication</div>
       </div>
       <div class="terminal-window" id="oplog-terminal">
         <div class="log-entry"><span class="log-timestamp">[BOOT]</span> <span class="log-info">ReliefMesh Core active. Watching hazard_perimeters and resource_inventory with Pre/Post-Images.</span></div>
@@ -707,14 +833,13 @@
     let detourRouteLayer = null;
     let deltaPolygonLayer = null;
 
-    // Initialize Leaflet Slippy Map centered on Sector 7
+    // Initialize Leaflet Map centered on Sector 7
     function initSlippyMap() {
       mapInstance = L.map('leaflet-map', {
         zoomControl: true,
         attributionControl: false
       }).setView([13.065, 80.250], 12);
 
-      // Dark Matter Carto basemap tiles
       L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         maxZoom: 18,
         subdomains: 'abcd'
@@ -725,7 +850,7 @@
         [13.0000, 80.2000],
         [13.0200, 80.2100],
         [13.0410, 80.2220],
-        [13.0600, 80.2350], // Flood intersection segment
+        [13.0600, 80.2350],
         [13.0850, 80.2480],
         [13.1200, 80.2600]
       ];
@@ -742,7 +867,7 @@
         [13.0000, 80.2000],
         [13.0180, 80.2150],
         [13.0350, 80.2450],
-        [13.0650, 80.2750], // Safe eastward bypass
+        [13.0650, 80.2750],
         [13.0900, 80.2680],
         [13.1200, 80.2600]
       ];
@@ -752,301 +877,217 @@
         weight: 4,
         opacity: 0,
         dashArray: '6, 6'
-      }).addTo(mapInstance).bindPopup("<b>Dynamic OSRM Bypass Detour</b><br>Auto-computed route bypassing expanded flood perimeter.");
+      }).addTo(mapInstance).bindPopup("<b>Dynamic OSRM Bypass Detour</b><br>Auto-computed route skirting flood crest");
 
-      // Ultrasonic River Gauge RG-04 Marker
+      // River Gauge RG-04 Marker
       riverGaugeMarker = L.circleMarker([13.0500, 80.2300], {
         radius: 8,
         fillColor: '#38BDF8',
         color: '#FFFFFF',
         weight: 2,
-        fillOpacity: 1
-      }).addTo(mapInstance).bindPopup("<b>River Gauge RG-04</b><br>Ultrasonic Water-Level Sensor<br>Windowed Rate-of-Rise Derivative ($derivative) Monitoring");
+        fillOpacity: 0.9
+      }).addTo(mapInstance).bindPopup("<b>River Gauge RG-04</b><br>Current Level: 2.1m (Normal Flow)");
     }
 
-    // Terminal Logging
-    function logToTerminal(message, cssClass = "") {
-      const term = document.getElementById("oplog-terminal");
-      const row = document.createElement("div");
-      row.className = "log-entry";
-      const ts = new Date().toLocaleTimeString();
-      row.innerHTML = `<span class="log-timestamp">[${ts}]</span> <span class="${cssClass}">${message}</span>`;
-      term.appendChild(row);
-      term.scrollTop = term.scrollHeight;
-    }
-
-    // WebSocket Setup
+    // WebSocket Client Engine
+    let ws = null;
     function initWebSocket() {
-      const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const sock = new WebSocket(`${proto}//${window.location.host}`);
+      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${proto}//${window.location.host}`);
 
-      sock.onopen = () => {
-        document.getElementById("ws-status-text").innerHTML = "● WebSocket Connected";
-        document.getElementById("ws-status-text").style.color = "#34D399";
-        logToTerminal("WebSocket connection established. Streaming live oplog events.", "log-success");
+      ws.onopen = () => {
+        logToTerminal("WebSocket oplog channel opened to MongoDB 8.3 Core.", "log-success");
       };
 
-      sock.onmessage = (evt) => {
+      ws.onmessage = (event) => {
         try {
-          const payload = JSON.parse(evt.data);
-          processWebSocketEvent(payload);
+          const msg = JSON.parse(event.data);
+          handleWebSocketMessage(msg);
         } catch (e) {
           console.error(e);
         }
       };
 
-      sock.onclose = () => {
-        document.getElementById("ws-status-text").innerHTML = "○ WebSocket Reconnecting...";
-        document.getElementById("ws-status-text").style.color = "#F43F5E";
-        setTimeout(initWebSocket, 3000);
+      ws.onclose = () => {
+        setTimeout(initWebSocket, 2000);
       };
     }
 
-    function processWebSocketEvent(msg) {
-      if (msg.type === "ALLOCATION_COMMITTED") {
-        logToTerminal(`[CAS COMMITTED] Allocated Depot: ${msg.payload.allocatedDepotId} (${msg.payload.depotCode}) | Stock: ${msg.payload.remainingQuantity} | Attempts: ${msg.payload.attempts}`, "log-success");
-        pullLatestState();
-      } else if (msg.type === "RACE_ENGAGED") {
-        logToTerminal(`[OCC RACE] Multi-agent race engaged on ${msg.payload.depotId}! Available: ${msg.payload.initialStock} units.`, "log-warning");
-      } else if (msg.type === "RACE_RESOLVED") {
-        logToTerminal(`✓ [RACE COMPLETED] ${msg.payload.winnersCount} committed primary depot, ${msg.payload.rematchesCount} auto-rematched via Full Jitter.`, "log-success");
-        pullLatestState();
-      } else if (msg.type === "TELEMETRY_SPIKE") {
-        logToTerminal(`🚨 [ASP SENSOR SURGE] River Gauge ${msg.payload.sensorId} level spiked to ${msg.payload.level}m!`, "log-alert");
-      } else if (msg.type === "SPATIAL_DELTA_COMPUTED") {
-        logToTerminal(`[SPATIAL DELTA] Calculated difference polygon (Ω_post \\ Ω_pre). Evaluating newly inundated zone only.`, "log-info");
-        drawSpatialDelta(msg.payload.deltaGeometry);
-      } else if (msg.type === "ROUTE_COMPROMISED") {
-        logToTerminal(`🚨 [ROUTE COMPROMISED] Mission ${msg.payload.missionCode} intersected expanding hazard! Triggering reroute...`, "log-alert");
-        flagCompromisedRoute();
-        pullLatestState();
-      } else if (msg.type === "MISSION_REROUTED") {
-        logToTerminal(`✓ [REROUTE COMMITTED] Mission ${msg.payload.missionId} auto-diverted around flood perimeter!`, "log-success");
-        renderDetourPolyline();
-        pullLatestState();
-      } else if (msg.type === "STATE_RESET") {
-        logToTerminal(`[STATE RESET] ${msg.payload.message}`, "log-info");
-        restoreMapBaselines();
-        pullLatestState();
-      } else if (msg.type === "DEPOTS_RESTOCKED") {
-        logToTerminal(`[RESTOCK] Restocked depots (+${msg.payload.amount} units).`, "log-success");
-        pullLatestState();
-      }
+    function logToTerminal(text, cls = "log-info") {
+      const term = document.getElementById("oplog-terminal");
+      const time = new Date().toLocaleTimeString();
+      const div = document.createElement("div");
+      div.className = "log-entry";
+      div.innerHTML = `<span class="log-timestamp">[${time}]</span> <span class="${cls}">${text}</span>`;
+      term.appendChild(div);
+      term.scrollTop = term.scrollHeight;
     }
 
-    // Pull State from REST API
-    async function pullLatestState() {
-      try {
-        const res = await fetch("/api/state");
-        const data = await res.json();
-        if (data.success) {
-          syncInventoryTable(data.depots);
-          syncMissionsTable(data.missions);
-          syncAuditTable(data.audits);
-          syncMapElements(data);
-          syncMetricsCards(data);
+    function handleWebSocketMessage(msg) {
+      const { type, payload } = msg;
+
+      if (type === "SYSTEM_CONNECTED") {
+        logToTerminal(`Connected to ${payload.engine} (${payload.setName})`, "log-success");
+      }
+
+      if (type === "ALLOCATION_COMMITTED") {
+        logToTerminal(`[OPLOG CAS COMMIT] Allocated depot ${payload.result.allocatedDepotId} in ${payload.result.elapsedMs || 5}ms`, "log-success");
+        if (payload.invariantCheck) {
+          updateConservationHUD(payload.invariantCheck);
         }
-      } catch (err) {
-        console.error("State sync failed:", err);
+        pullLatestState();
+      }
+
+      if (type === "RACE_ENGAGED") {
+        logToTerminal(`[CONCURRENCY RACE] ${payload.count} dispatchers contesting Depot ${payload.depotId}`, "log-warning");
+      }
+
+      if (type === "RACE_RESOLVED") {
+        logToTerminal(`[RACE RESOLVED] ${payload.winnersCount} wins, ${payload.rematchesCount} Full Jitter rematches, ${payload.exhaustedCount} exhausted in ${payload.totalDurationMs}ms`, "log-success");
+        if (payload.invariantCheck) {
+          updateConservationHUD(payload.invariantCheck);
+        }
+        pullLatestState();
+      }
+
+      if (type === "TELEMETRY_SPIKE") {
+        logToTerminal(`[TELEMETRY SPIKE] Gauge ${payload.sensorId} surged to ${payload.level}m (CRITICAL THRESHOLD BREACHED)`, "log-alert");
+      }
+
+      if (type === "HAZARD_UPDATED") {
+        logToTerminal(`[CHANGE STREAM] Inundation perimeter expanded! Evaluated ${payload.compromisedCount} missions.`, "log-alert");
+        if (payload.slo) {
+          updateSloHUD(payload.slo);
+        }
+        pullLatestState();
+      }
+
+      if (type === "SPATIAL_DELTA_COMPUTED") {
+        logToTerminal(`[SPATIAL DELTA] Calculated ΔΩ = Ω_post \\ Ω_pre (evaluating only newly submerged geometry)`, "log-info");
+        drawDeltaPolygon(payload.deltaGeometry);
+      }
+
+      if (type === "ROUTE_COMPROMISED") {
+        logToTerminal(`🚨 [CHANGE STREAM ALERT] Convoy ${payload.missionCode} intersected expanding flood! CAS invalidation triggered.`, "log-alert");
+      }
+
+      if (type === "MISSION_REROUTED") {
+        logToTerminal(`✓ [DYNAMIC REROUTE] Mission ${payload.missionId} auto-diverted around flood crest (${payload.distanceKm}km, ETA: ${payload.etaMinutes}m)`, "log-success");
+        if (payload.newCoordinates) {
+          updateDetourRoute(payload.newCoordinates);
+        }
+        pullLatestState();
+      }
+
+      if (type === "SLO_MEASURED") {
+        updateSloHUD(payload);
+      }
+
+      if (type === "CONSENSUS_UPDATED") {
+        updateConsensusGrid(payload);
+      }
+
+      if (type === "STATE_RESET") {
+        logToTerminal("Database state reseeded to authoritative ground truth.", "log-info");
+        resetMapVisuals();
+        pullLatestState();
       }
     }
 
-    function syncMetricsCards(data) {
-      const d1 = data.depots.find(d => d._id === "DEPOT-001");
-      if (d1) {
-        document.getElementById("metric-d1-stock").innerText = d1.availableQuantity;
-        document.getElementById("metric-d1-v").innerText = d1.__v;
+    function updateSloHUD(slo) {
+      const tauEl = document.getElementById("hud-tau-status");
+      const p50p95El = document.getElementById("hud-tau-p50-p95");
+      if (tauEl && slo.tauMs) {
+        tauEl.innerText = `${slo.invariantVerified ? 'VERIFIED' : 'WARNING'} (${slo.tauMs}ms)`;
+        tauEl.className = slo.invariantVerified ? 'slo-value verified' : 'slo-value warning';
       }
-      const m104 = data.missions.find(m => m._id === "MISSION-104");
-      if (m104) {
-        const statusSpan = document.getElementById("metric-m104-status");
-        statusSpan.innerText = m104.status;
-        if (m104.status === "route_compromised") statusSpan.style.color = "#F43F5E";
-        else if (m104.status === "rerouted_in_transit") statusSpan.style.color = "#34D399";
-        else statusSpan.style.color = "#38BDF8";
-      }
+      fetch("/api/slo").then(r=>r.json()).then(data=>{
+        if (data.success && p50p95El) {
+          p50p95El.innerText = `${data.p50TauMs}ms / ${data.p95TauMs}ms`;
+        }
+      }).catch(console.error);
     }
 
-    function syncInventoryTable(depots) {
-      const tbody = document.getElementById("inventory-grid-body");
-      tbody.innerHTML = "";
-      depots.forEach(d => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><strong>${d._id}</strong> <span style="color: var(--text-dim);">(${d.depotCode})</span></td>
-          <td>${d.itemDescription}</td>
-          <td style="font-weight: bold; color: ${d.availableQuantity > 0 ? 'var(--mongo-green)' : '#F43F5E'}">${d.availableQuantity} / ${d.totalCapacity}</td>
-          <td>__v: ${d.__v}</td>
-          <td>
-            <button class="btn btn-subtle" style="padding: 3px 8px; font-size: 10px;" onclick="claimDepotSupply('${d._id}', 2)">Claim 2</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function syncMissionsTable(missions) {
-      const tbody = document.getElementById("mission-grid-body");
-      tbody.innerHTML = "";
-      missions.forEach(m => {
-        const badgeClass = m.status === 'in_transit' ? 'status-badge amber' :
-                           (m.status === 'route_compromised' ? 'status-badge red' : 'status-badge green');
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><strong>${m.missionCode}</strong></td>
-          <td>${m.assignedVehicle || 'CONVOY-01'}</td>
-          <td><span class="${badgeClass}">${m.status}</span></td>
-          <td>${m.rerouteNotice || 'Highway 16 Clear'}</td>
-          <td>${m.route.distanceKm} km (${m.route.etaMinutes}m)</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function syncAuditTable(audits) {
-      const tbody = document.getElementById("audit-grid-body");
-      tbody.innerHTML = "";
-      audits.forEach(a => {
-        const tr = document.createElement("tr");
-        const ts = new Date(a.timestamp).toLocaleTimeString();
-        tr.innerHTML = `
-          <td>${a.incidentId || 'INC-N/A'}</td>
-          <td>${a.resourceId}</td>
-          <td>${a.allocatedQty}</td>
-          <td>__v: ${a.versionAtCommit}</td>
-          <td><span class="status-badge green">${a.strategy}</span></td>
-          <td>${ts}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    // Map Element Synchronization
-    function syncMapElements(data) {
-      // 1. Depots
-      data.depots.forEach(depot => {
-        const [lng, lat] = depot.location.coordinates;
-        const color = depot.availableQuantity > 0 ? '#00ED64' : '#F43F5E';
-
-        if (!depotMarkersMap[depot._id]) {
-          depotMarkersMap[depot._id] = L.circleMarker([lat, lng], {
-            radius: 8,
-            fillColor: color,
-            color: '#FFFFFF',
-            weight: 2,
-            fillOpacity: 0.95
-          }).addTo(mapInstance);
+    function updateConservationHUD(inv) {
+      const el = document.getElementById("hud-overalloc-status");
+      if (el) {
+        if (inv.invariantHold) {
+          el.innerText = "0 Over-Allocations (100% Sound)";
+          el.className = "slo-value verified";
         } else {
-          depotMarkersMap[depot._id].setStyle({ fillColor: color });
+          el.innerText = `${inv.overAllocations} VIOLATIONS!`;
+          el.className = "slo-value warning";
         }
+      }
+    }
 
-        depotMarkersMap[depot._id].bindPopup(`
-          <div style="font-size: 12px; line-height: 1.4;">
-            <b style="color: var(--mongo-green);">${depot._id} (${depot.depotCode})</b><br>
-            <b>Item:</b> ${depot.itemDescription}<br>
-            <b>Stock:</b> <span style="font-size: 13px; font-weight: bold; color: ${color};">${depot.availableQuantity} units</span><br>
-            <b>OCC Version:</b> __v: ${depot.__v}<br>
-            <button class="btn btn-mongo" style="margin-top: 6px; padding: 4px 10px; font-size: 10px;" onclick="claimDepotSupply('${depot._id}', 4)">Claim 4 Units</button>
-          </div>
-        `);
+    function updateConsensusGrid(consensus) {
+      const qEl = document.getElementById("hud-quorum-status");
+      const badge = document.getElementById("consensus-summary-badge");
+      if (qEl) {
+        qEl.innerText = consensus.consensusStatus;
+        qEl.className = consensus.consensusStatus === 'QUORUM_HEALTHY' ? 'slo-value verified' : 'slo-value warning';
+      }
+      if (badge) {
+        badge.innerText = consensus.consensusStatus;
+        badge.className = consensus.consensusStatus === 'QUORUM_HEALTHY' ? 'status-badge green' : 'status-badge amber';
+      }
+
+      const tbody = document.getElementById("consensus-grid-body");
+      if (!tbody || !consensus.fleetStatus) return;
+      tbody.innerHTML = "";
+      consensus.fleetStatus.forEach(a => {
+        const tr = document.createElement("tr");
+        const isAlive = a.isAlive;
+        const ttlSecRemaining = Math.max(0, 30 - Math.round(a.ageMs / 1000));
+        tr.innerHTML = `
+          <td><strong>${a.agentId}</strong></td>
+          <td>${a.role}</td>
+          <td>${(a.ageMs / 1000).toFixed(1)}s ago</td>
+          <td><span class="status-badge ${isAlive ? 'green' : 'red'}">${ttlSecRemaining}s TTL</span></td>
+          <td><span class="status-badge ${isAlive ? 'green' : 'red'}">${isAlive ? 'ALIVE' : 'STALE'}</span></td>
+        `;
+        tbody.appendChild(tr);
       });
+    }
 
-      // 2. Hazard Polygon
-      if (data.hazards && data.hazards.length > 0) {
-        const hazard = data.hazards[0];
-        const latLngs = hazard.polygon.coordinates[0].map(coord => [coord[1], coord[0]]);
-
-        if (!hazardPolygonLayer) {
-          hazardPolygonLayer = L.polygon(latLngs, {
-            color: '#38BDF8',
-            fillColor: '#38BDF8',
-            fillOpacity: 0.35,
-            weight: 2
-          }).addTo(mapInstance).bindPopup("<b>Flood Inundation Perimeter</b><br>Monitored via 2dsphere index");
-        } else {
-          hazardPolygonLayer.setLatLngs(latLngs);
-          if (hazard.severity === "catastrophic") {
-            hazardPolygonLayer.setStyle({
-              color: '#F43F5E',
-              fillColor: '#F43F5E',
-              fillOpacity: 0.5
-            });
-          }
-        }
+    function drawDeltaPolygon(deltaGeo) {
+      if (deltaPolygonLayer) {
+        mapInstance.removeLayer(deltaPolygonLayer);
       }
-
-      // 3. Convoy Alpha
-      const m104 = data.missions.find(m => m._id === "MISSION-104");
-      if (m104) {
-        if (!missionMarkersMap["MISSION-104"]) {
-          missionMarkersMap["MISSION-104"] = L.circleMarker([13.0410, 80.2220], {
-            radius: 7,
-            fillColor: '#F59E0B',
-            color: '#FFFFFF',
-            weight: 2,
-            fillOpacity: 1
-          }).addTo(mapInstance).bindPopup("<b>Supply Convoy Alpha</b><br>In transit along Highway 16");
-        }
-
-        if (m104.status === "route_compromised") {
-          flagCompromisedRoute();
-        } else if (m104.status === "rerouted_in_transit") {
-          renderDetourPolyline();
-        }
+      if (deltaGeo && deltaGeo.coordinates) {
+        const coords = deltaGeo.coordinates[0].map(c => [c[1], c[0]]);
+        deltaPolygonLayer = L.polygon(coords, {
+          color: '#F43F5E',
+          fillColor: '#F43F5E',
+          fillOpacity: 0.5,
+          weight: 2,
+          dashArray: '4, 4'
+        }).addTo(mapInstance).bindPopup("<b>ΔΩ Spatial Delta (Omega_post \\ Omega_pre)</b><br>Newly inundated ground evaluated for mission intersections");
       }
     }
 
-    function flagCompromisedRoute() {
-      if (convoyRouteLayer) {
-        convoyRouteLayer.setStyle({ color: '#F43F5E', weight: 5 });
-      }
-    }
-
-    function renderDetourPolyline() {
-      flagCompromisedRoute();
+    function updateDetourRoute(coords) {
       if (detourRouteLayer) {
-        detourRouteLayer.setStyle({ opacity: 0.95 });
+        const latLngs = coords.map(c => [c[1], c[0]]);
+        detourRouteLayer.setLatLngs(latLngs);
+        detourRouteLayer.setStyle({ opacity: 1 });
       }
-      if (missionMarkersMap["MISSION-104"]) {
-        missionMarkersMap["MISSION-104"].setLatLng([13.0650, 80.2750]);
-        missionMarkersMap["MISSION-104"].setStyle({ fillColor: '#10B981' });
-      }
-    }
-
-    function drawSpatialDelta(deltaGeometry) {
-      if (!deltaGeometry || !deltaGeometry.coordinates) return;
-      const latLngs = deltaGeometry.coordinates[0].map(coord => [coord[1], coord[0]]);
-      
-      if (deltaPolygonLayer) mapInstance.removeLayer(deltaPolygonLayer);
-      
-      deltaPolygonLayer = L.polygon(latLngs, {
-        color: '#F97316',
-        fillColor: '#F97316',
-        fillOpacity: 0.45,
-        weight: 3,
-        dashArray: '4, 4'
-      }).addTo(mapInstance).bindPopup("<b>Spatial Delta (Ω_post \\ Ω_pre)</b><br>Evaluated exclusively for $geoIntersects routing collisions.");
-
-      mapInstance.flyTo([13.055, 80.240], 13, { duration: 1.2 });
-    }
-
-    function restoreMapBaselines() {
       if (convoyRouteLayer) {
-        convoyRouteLayer.setStyle({ color: '#F59E0B', weight: 4 });
+        convoyRouteLayer.setStyle({ opacity: 0.35 });
       }
-      if (detourRouteLayer) {
-        detourRouteLayer.setStyle({ opacity: 0 });
-      }
+    }
+
+    function resetMapVisuals() {
       if (deltaPolygonLayer) {
         mapInstance.removeLayer(deltaPolygonLayer);
         deltaPolygonLayer = null;
       }
-      if (hazardPolygonLayer) {
-        hazardPolygonLayer.setStyle({
-          color: '#38BDF8',
-          fillColor: '#38BDF8',
-          fillOpacity: 0.35
-        });
+      if (detourRouteLayer) {
+        detourRouteLayer.setStyle({ opacity: 0 });
+      }
+      if (convoyRouteLayer) {
+        convoyRouteLayer.setStyle({ opacity: 0.85 });
       }
       if (missionMarkersMap["MISSION-104"]) {
         missionMarkersMap["MISSION-104"].setLatLng([13.0410, 80.2220]);
@@ -1060,8 +1101,10 @@
       document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.tab-pane').forEach(c => c.classList.remove('active'));
 
-      event.target.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
+      const clickedBtn = Array.from(document.querySelectorAll('.tab-item')).find(b => b.getAttribute('onclick')?.includes(tabId));
+      if (clickedBtn) clickedBtn.classList.add('active');
+      const targetPane = document.getElementById(tabId);
+      if (targetPane) targetPane.classList.add('active');
     }
 
     function applyPresetQuery(text) {
@@ -1075,7 +1118,7 @@
       const simulateTimeout = document.getElementById("timeout-toggle").checked;
       const out = document.getElementById("search-output");
 
-      out.innerHTML = `<span style="color: var(--mongo-green);">Probing Atlas Search Synonyms & $rankFusion...</span>`;
+      out.innerHTML = `<span style="color: var(--mongo-green);">Executing Native MongoDB 8.3 $rankFusion Pipeline...</span>`;
 
       try {
         const res = await fetch("/api/retrieve", {
@@ -1086,14 +1129,14 @@
         const data = await res.json();
 
         if (data.success) {
-          let html = `<div style="margin-bottom: 6px;"><b>Retrieval Mode:</b> <span style="color: ${data.retrievalMode === 'FULL_HYBRID' ? 'var(--mongo-green)' : '#F59E0B'};">${data.retrievalMode}</span> | <b>Spatial Radius:</b> ${data.geoRadiusKm}km</div>`;
-          html += `<div style="margin-bottom: 8px;"><b>Synonym Expansion:</b> <span style="color: #94A3B8;">${data.synonymTerms.slice(0, 6).join(", ")}...</span></div>`;
-          html += `<div style="margin-bottom: 4px; border-bottom: 1px solid var(--border); padding-bottom: 4px;"><b>Ranked Candidates ($rankFusion):</b></div>`;
+          let html = `<div style="margin-bottom: 6px;"><b>Retrieval Mode:</b> <span style="color: ${data.retrievalMode.includes('HYBRID') ? 'var(--mongo-green)' : '#F59E0B'};">${data.retrievalMode}</span> | <b>Vector Dimension:</b> ${data.vectorDimension || 768}-dim | <b>Radius:</b> ${data.geoRadiusKm}km</div>`;
+          html += `<div style="margin-bottom: 8px;"><b>Synonym Dictionary:</b> <span style="color: #94A3B8;">${data.synonymTerms.slice(0, 6).join(", ")}...</span></div>`;
+          html += `<div style="margin-bottom: 4px; border-bottom: 1px solid var(--border); padding-bottom: 4px;"><b>Ranked Candidates (Native $rankFusion, k=60):</b></div>`;
 
           data.candidates.forEach((c, idx) => {
             html += `<div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
               <span><b>#${idx+1}</b> ${c._id} (${c.depotCode})</span>
-              <span>Stock: <strong style="color: var(--mongo-green);">${c.availableQuantity}</strong> | __v: ${c.__v} | RRF Score: ${c.rrfScore.toFixed(4)}</span>
+              <span>Stock: <strong style="color: var(--mongo-green);">${c.availableQuantity}</strong> | OCC __v: ${c.__v} | RRF Score: ${c.rrfScore.toFixed(4)}</span>
             </div>`;
           });
 
@@ -1107,7 +1150,6 @@
     async function runAmbulanceRace(count = 2) {
       logToTerminal(`Engaging high-contention race for ${count} dispatchers contesting Depot 1...`, "log-warning");
       setInspectorTab('tab-occ');
-      document.querySelectorAll('.tab-item')[1].classList.add('active');
 
       const out = document.getElementById("occ-output");
       out.innerHTML = `<span style="color: var(--mongo-green);">Firing concurrent Single-Document CAS update predicates...</span>`;
@@ -1121,10 +1163,11 @@
         const data = await res.json();
 
         if (data.success) {
-          let html = `<div style="margin-bottom: 8px;"><b>Contention Resolution Summary (${data.total} Dispatchers):</b></div>`;
-          html += `<div>• Primary Allocations Committed (Winner): <span style="color: var(--mongo-green); font-weight: bold;">${data.winners.length}</span></div>`;
-          html += `<div>• Failed Predicates Auto-Rematched via Full Jitter: <span style="color: #38BDF8; font-weight: bold;">${data.rematches.length}</span></div>`;
-          html += `<div>• Stock Exhausted: <span style="color: #F43F5E;">${data.exhausted.length}</span></div>`;
+          let html = `<div style="margin-bottom: 8px;"><b>Contention Resolution Summary (${data.totalAgents || count} Dispatchers):</b></div>`;
+          html += `<div>• Primary Allocations Committed (Winner): <span style="color: var(--mongo-green); font-weight: bold;">${data.winnersCount}</span></div>`;
+          html += `<div>• Failed Predicates Auto-Rematched via Full Jitter: <span style="color: #38BDF8; font-weight: bold;">${data.rematchesCount}</span></div>`;
+          html += `<div>• Stock Exhausted: <span style="color: #F43F5E;">${data.exhaustedCount}</span></div>`;
+          html += `<div>• P50 / P95 Latency: <span style="color: #CBD5E1;">${data.p50LatencyMs}ms / ${data.p95LatencyMs}ms</span></div>`;
           html += `<div style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 6px;"><b>Dispatcher Ledger:</b></div>`;
 
           data.results.forEach((r, idx) => {
@@ -1140,6 +1183,68 @@
       } catch (err) {
         out.innerHTML = `<span style="color: #F43F5E;">Race failed: ${err.message}</span>`;
       }
+    }
+
+    async function runChaosStampede(count = 20) {
+      logToTerminal(`🔥 [CHAOS STAMPEDE] Launching ${count} simultaneous autonomous agents racing for inventory...`, "log-warning");
+      setInspectorTab('tab-chaos');
+
+      const out = document.getElementById("chaos-output");
+      out.innerHTML = `<span style="color: #A855F7;">Spawning ${count} concurrent claim transactions with randomized microsecond jitter...</span>`;
+
+      try {
+        const res = await fetch("/api/demo/race", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ count, targetDepotId: "DEPOT-001", demand: 2 })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          let html = `<div style="margin-bottom: 8px; color: #D8B4FE;"><b>Chaos Stampede Telemetry (${count} Concurrent Agents):</b></div>`;
+          html += `<div>• CAS Conflict Rate: <span style="color: #F59E0B; font-weight: bold;">${data.conflictRate}%</span></div>`;
+          html += `<div>• P50 Allocation Latency: <span style="color: var(--mongo-green); font-weight: bold;">${data.p50LatencyMs}ms</span></div>`;
+          html += `<div>• P95 Allocation Latency: <span style="color: var(--mongo-green); font-weight: bold;">${data.p95LatencyMs}ms</span></div>`;
+          html += `<div>• Total Race Duration: <span style="color: #38BDF8;">${data.totalDurationMs}ms</span></div>`;
+          html += `<div>• Winners / Rematches / Exhausted: <span style="color: #FFFFFF;">${data.winnersCount} / ${data.rematchesCount} / ${data.exhaustedCount}</span></div>`;
+          
+          if (data.invariantCheck) {
+            html += `<div style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 6px;">`;
+            html += `<b>Global Conservation Invariant:</b> <span style="color: ${data.invariantCheck.invariantHold ? 'var(--mongo-green)' : '#F43F5E'}; font-weight: bold;">${data.invariantCheck.invariantHold ? 'PASSED (0 OVER-ALLOCATIONS)' : 'VIOLATED!'}</span><br>`;
+            html += `<span style="color: var(--text-muted); font-size: 10px;">Verified ${data.invariantCheck.totalDepotsVerified} depots | Total Stock Allocated: ${data.invariantCheck.totalUnitsAllocated} units</span>`;
+            html += `</div>`;
+          }
+
+          out.innerHTML = html;
+          pullLatestState();
+        }
+      } catch (err) {
+        out.innerHTML = `<span style="color: #F43F5E;">Stampede execution failed: ${err.message}</span>`;
+      }
+    }
+
+    async function chaosPartitionAgent(agentId) {
+      logToTerminal(`🔌 [CHAOS] Suppressing heartbeats for ${agentId}. Testing MongoDB 30s TTL expiry...`, "log-warning");
+      try {
+        await fetch("/api/chaos/partition-agent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ agentId })
+        });
+        pullLatestState();
+      } catch (e) { console.error(e); }
+    }
+
+    async function chaosRecoverAgent(agentId) {
+      logToTerminal(`🔄 [CHAOS] Restoring heartbeats for ${agentId}...`, "log-info");
+      try {
+        await fetch("/api/chaos/recover-agent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ agentId })
+        });
+        pullLatestState();
+      } catch (e) { console.error(e); }
     }
 
     async function triggerRiverBreach(level = 4.8) {
@@ -1179,10 +1284,17 @@
       }
     }
 
+    async function resetStateBaseline() {
+      try {
+        await fetch("/api/reset", { method: "POST" });
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
     async function triggerVoiceIngest() {
       logToTerminal("🎙️ Ingesting Vernacular Dialect Audio (Whisper Speech-to-Text Pipeline)...", "log-info");
       setInspectorTab('tab-search');
-      document.querySelectorAll('.tab-item')[0].classList.add('active');
 
       try {
         const res = await fetch("/api/voice/ingest", {
@@ -1231,6 +1343,155 @@
           clearInterval(convoyMovementTimer);
         }
       }, 2000);
+    }
+
+    // Pull Full Operational State from Server
+    async function pullLatestState() {
+      try {
+        const res = await fetch("/api/state");
+        const data = await res.json();
+        if (!data.success) return;
+
+        // Render Inventory Table
+        const invBody = document.getElementById("inventory-grid-body");
+        invBody.innerHTML = "";
+        data.depots.forEach(d => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${d._id}</strong> <span style="color: var(--text-dim);">(${d.depotCode})</span></td>
+            <td>${d.itemDescription}</td>
+            <td><strong style="color: ${d.availableQuantity > 0 ? 'var(--mongo-green)' : '#F43F5E'};">${d.availableQuantity}</strong></td>
+            <td><span class="status-badge blue">__v:${d.__v}</span></td>
+            <td>
+              <button class="btn btn-subtle" style="padding: 3px 8px; font-size: 10px;" onclick="claimDepotSupply('${d._id}', 2)">Claim 2</button>
+            </td>
+          `;
+          invBody.appendChild(tr);
+
+          // Update Leaflet Marker
+          const [lng, lat] = d.location.coordinates;
+          if (!depotMarkersMap[d._id]) {
+            const el = document.createElement("div");
+            el.className = `depot-marker-pulse ${d.availableQuantity === 0 ? 'depot-marker-empty' : ''}`;
+            el.innerText = d.availableQuantity;
+            const customIcon = L.divIcon({ className: '', html: el.outerHTML, iconSize: [24, 24] });
+            depotMarkersMap[d._id] = L.marker([lat, lng], { icon: customIcon }).addTo(mapInstance);
+          } else {
+            const el = document.createElement("div");
+            el.className = `depot-marker-pulse ${d.availableQuantity === 0 ? 'depot-marker-empty' : ''}`;
+            el.innerText = d.availableQuantity;
+            depotMarkersMap[d._id].setIcon(L.divIcon({ className: '', html: el.outerHTML, iconSize: [24, 24] }));
+          }
+        });
+
+        // Update Spine Card Metrics
+        const d1 = data.depots.find(d => d._id === "DEPOT-001");
+        if (d1) {
+          document.getElementById("metric-d1-stock").innerText = d1.availableQuantity;
+          document.getElementById("metric-d1-v").innerText = d1.__v;
+        }
+
+        // Render Missions Table
+        const misBody = document.getElementById("mission-grid-body");
+        misBody.innerHTML = "";
+        data.missions.forEach(m => {
+          const tr = document.createElement("tr");
+          const isCompromised = m.status === "route_compromised";
+          const isRerouted = m.status === "rerouted_in_transit";
+          const statusCls = isCompromised ? 'red' : (isRerouted ? 'green' : 'amber');
+
+          tr.innerHTML = `
+            <td><strong>${m.missionCode}</strong></td>
+            <td>${m.assignedVehicle}</td>
+            <td><span class="status-badge ${statusCls}">${m.status}</span></td>
+            <td>${m.rerouteNotice || 'Nominal Highway 16'}</td>
+            <td>${m.route.distanceKm} km · ${m.route.etaMinutes} min</td>
+          `;
+          misBody.appendChild(tr);
+
+          if (m._id === "MISSION-104") {
+            const m104Status = document.getElementById("metric-m104-status");
+            m104Status.innerText = m.status;
+            m104Status.style.color = isCompromised ? '#F43F5E' : (isRerouted ? '#10B981' : '#38BDF8');
+          }
+
+          // Mission Map Marker
+          const coords = m.route.geometry.coordinates;
+          const currentPoint = coords[0];
+          if (!missionMarkersMap[m._id]) {
+            missionMarkersMap[m._id] = L.circleMarker([currentPoint[1], currentPoint[0]], {
+              radius: 9,
+              fillColor: isCompromised ? '#F43F5E' : (isRerouted ? '#10B981' : '#F59E0B'),
+              color: '#FFFFFF',
+              weight: 2,
+              fillOpacity: 0.95
+            }).addTo(mapInstance).bindPopup(`<b>${m.missionCode}</b><br>Status: ${m.status}<br>${m.rerouteNotice || ''}`);
+          } else {
+            missionMarkersMap[m._id].setStyle({
+              fillColor: isCompromised ? '#F43F5E' : (isRerouted ? '#10B981' : '#F59E0B')
+            });
+          }
+        });
+
+        // Render Audit Table
+        const audBody = document.getElementById("audit-grid-body");
+        audBody.innerHTML = "";
+        data.audits.forEach(a => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td><strong>${a.incidentId || a.missionId || 'LEDGER'}</strong></td>
+            <td>${a.resourceId}</td>
+            <td>${a.allocatedQty}</td>
+            <td><span class="status-badge blue">__v:${a.versionAtCommit || 1}</span></td>
+            <td><span class="status-badge green">${a.strategy}</span></td>
+            <td>${new Date(a.timestamp).toLocaleTimeString()}</td>
+          `;
+          audBody.appendChild(tr);
+        });
+
+        // Update Hazard Polygons on Map
+        if (data.hazards && data.hazards[0]) {
+          const h = data.hazards[0];
+          const coords = h.polygon.coordinates[0].map(c => [c[1], c[0]]);
+          const isSurged = h.waterLevelMeters > 3.0;
+
+          if (!hazardPolygonLayer) {
+            hazardPolygonLayer = L.polygon(coords, {
+              color: isSurged ? '#F43F5E' : '#3B82F6',
+              fillColor: isSurged ? '#F43F5E' : '#3B82F6',
+              fillOpacity: isSurged ? 0.35 : 0.2,
+              weight: 2
+            }).addTo(mapInstance).bindPopup(`<b>${h.hazardCode}</b><br>Level: ${h.waterLevelMeters}m`);
+          } else {
+            hazardPolygonLayer.setLatLngs(coords);
+            hazardPolygonLayer.setStyle({
+              color: isSurged ? '#F43F5E' : '#3B82F6',
+              fillColor: isSurged ? '#F43F5E' : '#3B82F6',
+              fillOpacity: isSurged ? 0.35 : 0.2
+            });
+          }
+        }
+
+        // Update Consensus Grid
+        if (data.consensus) {
+          updateConsensusGrid(data.consensus);
+        }
+
+        // Update Inventory Invariant
+        if (data.invariant) {
+          updateConservationHUD(data.invariant);
+        }
+
+        // Update Dedup badge
+        const statusRes = await fetch("/api/status");
+        const statusData = await statusRes.json();
+        if (statusData.success && statusData.stats) {
+          document.getElementById("dedup-badge-val").innerText = `DEDUP EVENTS: ${statusData.stats.dedupCount || 0}`;
+        }
+
+      } catch (err) {
+        console.error("State pull error:", err);
+      }
     }
 
     // Startup

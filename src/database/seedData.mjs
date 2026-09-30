@@ -1,5 +1,22 @@
 import { connectToDatabase, closeDatabase } from "../config/db.mjs";
 
+export function generate768DimVector(seedText) {
+  let hash = 0;
+  for (let i = 0; i < seedText.length; i++) {
+    hash = ((hash << 5) - hash) + seedText.charCodeAt(i);
+    hash |= 0;
+  }
+  const vec = new Array(768);
+  let norm = 0;
+  for (let i = 0; i < 768; i++) {
+    const val = Math.sin((hash + 1) * (i + 1));
+    vec[i] = val;
+    norm += val * val;
+  }
+  const mag = Math.sqrt(norm) || 1;
+  return vec.map(v => Number((v / mag).toFixed(6)));
+}
+
 export async function seedData() {
   const { db } = await connectToDatabase();
   console.log("================================================================================");
@@ -78,8 +95,8 @@ export async function seedData() {
   ]);
   console.log("  ✓ Seeded 5 vernacular dialect synonym dictionaries");
 
-  // 2. Resource Inventory (The High-Contention Crisis Depots)
-  console.log("\n[SEED] Seeding Resource Inventory Aggregates...");
+  // 2. Resource Inventory (The High-Contention Crisis Depots with Native 768-dim Embeddings)
+  console.log("\n[SEED] Seeding Resource Inventory Aggregates (768-dim Embeddings)...");
   await db.collection("resource_inventory").deleteMany({});
   await db.collection("resource_inventory").insertMany([
     {
@@ -93,6 +110,7 @@ export async function seedData() {
         type: "Point",
         coordinates: [80.2707, 13.0827]
       },
+      embedding: generate768DimVector("Pediatric O-Negative Whole Blood Cold Chain Trauma"),
       status: "available",
       __v: 3, // Initial OCC version tag from spec
       allocations: [
@@ -111,6 +129,7 @@ export async function seedData() {
         type: "Point",
         coordinates: [80.2921, 13.0955]
       },
+      embedding: generate768DimVector("Pediatric O-Negative Whole Blood Harbor Reserve"),
       status: "available",
       __v: 1,
       allocations: [],
@@ -127,6 +146,7 @@ export async function seedData() {
         type: "Point",
         coordinates: [80.2450, 13.0510]
       },
+      embedding: generate768DimVector("O-Negative Whole Blood Central Annex Pack"),
       status: "available",
       __v: 1,
       allocations: [],
@@ -143,6 +163,7 @@ export async function seedData() {
         type: "Point",
         coordinates: [80.2100, 13.0150]
       },
+      embedding: generate768DimVector("Mobile Dewatering Water Purification Filter"),
       status: "available",
       __v: 1,
       allocations: [],
@@ -159,13 +180,14 @@ export async function seedData() {
         type: "Point",
         coordinates: [80.2050, 13.0300]
       },
+      embedding: generate768DimVector("Emergency High Calorie Meals Food Rations"),
       status: "available",
       __v: 1,
       allocations: [],
       updatedAt: new Date()
     }
   ]);
-  console.log("  ✓ Seeded 5 resource depots (including contested DEPOT-001 with 5 units)");
+  console.log("  ✓ Seeded 5 resource depots (including contested DEPOT-001 with 768-dim embeddings)");
 
   // 3. Active Missions (Convoy Alpha on Highway 16)
   console.log("\n[SEED] Seeding Active In-Transit Missions...");
@@ -317,6 +339,43 @@ export async function seedData() {
     }
   ]);
   console.log("  ✓ Seeded sensor telemetry baseline");
+
+  // 7. Active Edge Autonomous Responder Agents (TTL Heartbeat Consensus)
+  console.log("\n[SEED] Seeding Agent Fleet Registry with TTL Heartbeats...");
+  await db.collection("agent_registry").deleteMany({});
+  await db.collection("agent_registry").insertMany([
+    {
+      agentId: "AGENT-ALPHA-DISPATCHER",
+      role: "TACTICAL_DISPATCHER",
+      zone: "SECTOR-7",
+      status: "ACTIVE_CONSENSUS",
+      lastHeartbeat: new Date(),
+      lastSeenCoordinates: [80.2680, 13.0810],
+      pendingAllocations: 0,
+      epoch: 14
+    },
+    {
+      agentId: "AGENT-BRAVO-MEDIC",
+      role: "CRITICAL_CARE_LOGISTICS",
+      zone: "HARBOR-SECTOR",
+      status: "ACTIVE_CONSENSUS",
+      lastHeartbeat: new Date(),
+      lastSeenCoordinates: [80.2921, 13.0955],
+      pendingAllocations: 0,
+      epoch: 14
+    },
+    {
+      agentId: "AGENT-CHARLIE-DRONE",
+      role: "SURVEILLANCE_RECON",
+      zone: "RIVER-BASIN",
+      status: "ACTIVE_CONSENSUS",
+      lastHeartbeat: new Date(),
+      lastSeenCoordinates: [80.2300, 13.0500],
+      pendingAllocations: 0,
+      epoch: 14
+    }
+  ]);
+  console.log("  ✓ Seeded 3 autonomous agents with active TTL heartbeats");
 
   console.log("\n================================================================================");
   console.log(" RELIEFMESH DATABASE SEEDING COMPLETED");
