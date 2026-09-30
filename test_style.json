@@ -1,0 +1,1 @@
+[{"op": "add-shape", "slide": "p", "shape_type": "ROUND_RECTANGLE", "x": 50, "y": 50, "width": 120, "height": 60, "background_color": "#F0FDF4", "id": "TEST_S"}, {"op": "style-shape", "element": "TEST_S", "outline_color": "#00684A", "outline_weight": 1.5}]

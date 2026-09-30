@@ -1,0 +1,24 @@
+{
+  "name": "reliefmesh-engine",
+  "version": "4.0.0",
+  "description": "ReliefMesh: Operational Crisis Coordination Engine - MongoDB 8.1+ Master Implementation",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "bootstrap": "node src/database/bootstrapDatabase.mjs",
+    "seed": "node src/database/seedData.mjs",
+    "daemon": "node src/services/hazardStreamDaemon.mjs",
+    "demo:race": "node src/demos/demoRaceReplay.mjs",
+    "demo:delta": "node src/demos/demoDeltaInvalidation.mjs",
+    "demo:all": "node src/demos/runAllDemos.mjs",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "@turf/turf": "^7.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongodb": "^6.14.2",
+    "ws": "^8.18.1"
+  }
+}
