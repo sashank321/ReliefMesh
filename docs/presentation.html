@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReliefMesh: Operational Crisis Coordination Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #080c15;
+    --card-bg: rgba(15, 23, 42, 0.88);
+    --card-border: rgba(148, 163, 184, 0.14);
+    --mongo-green: #00ed64;
+    --mongo-forest: #064e3b;
+    --accent-cyan: #38bdf8;
+    --accent-coral: #f43f5e;
+    --accent-amber: #fbbf24;
+    --accent-purple: #c084fc;
+    --text-white: #ffffff;
+    --text-body: #f1f5f9;
+    --text-muted: #94a3b8;
+    --code-bg: #030712;
+    --alert-bg: rgba(244, 63, 94, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(ellipse at 50% 0%, #0f1f38 0%, #080c15 75%);
+    color: var(--text-white);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 12px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 100;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .badge {
+    background: rgba(0, 237, 100, 0.12);
+    color: var(--mongo-green);
+    border: 1px solid rgba(0, 237, 100, 0.35);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    box-shadow: 0 0 12px rgba(0, 237, 100, 0.15);
+  }
+  .title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-white);
+    letter-spacing: -0.01em;
+  }
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .btn {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid var(--card-border);
+    color: var(--text-body);
+    padding: 7px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .btn:hover {
+    border-color: var(--mongo-green);
+    color: var(--mongo-green);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 237, 100, 0.12);
+  }
+  .btn-primary {
+    background: var(--mongo-green);
+    border-color: var(--mongo-green);
+    color: #030712;
+    font-weight: 700;
+  }
+  .btn-primary:hover {
+    background: #10b981;
+    color: #030712;
+    border-color: #10b981;
+    box-shadow: 0 4px 16px rgba(0, 237, 100, 0.3);
+  }
+  .counter {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Slide Deck Container */
+  .deck {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 32px 48px;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.98);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+  }
+
+  .slide-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .slide-tag {
+    color: var(--mongo-green);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .slide-title {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-white);
+  }
+  .slide-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .grid {
+    display: grid;
+    gap: 18px;
+    flex: 1;
+  }
+  .grid-2 { grid-template-columns: 1.2fr 1fr; }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .grid-2-even { grid-template-columns: 1fr 1fr; }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    padding: 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-header {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--mongo-green);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-header.coral { color: var(--accent-coral); }
+  .card-header.cyan { color: var(--accent-cyan); }
+
+  .alert-banner {
+    background: rgba(248, 113, 113, 0.12);
+    border: 1px solid var(--accent-coral);
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .alert-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--accent-coral);
+    letter-spacing: 0.05em;
+  }
+  .alert-quote {
+    font-size: 15px;
+    font-style: italic;
+    color: var(--text-white);
+    line-height: 1.4;
+  }
+
+  .pain-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .pain-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .pain-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent-cyan);
+  }
+  .pain-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: #e2e8f0;
+    line-height: 1.45;
+    overflow-x: auto;
+    white-space: pre;
+    flex: 1;
+  }
+  .hl-keyword { color: #f472b6; font-weight: 600; }
+  .hl-func { color: #60a5fa; }
+  .hl-str { color: #34d399; }
+  .hl-comment { color: #64748b; font-style: italic; }
+
+  /* Table styling */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    text-align: left;
+  }
+  th {
+    background: rgba(0, 237, 100, 0.08);
+    color: var(--mongo-green);
+    font-weight: 700;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  td {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--text-white);
+    line-height: 1.4;
+    vertical-align: top;
+  }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  td:first-child { font-weight: 700; color: var(--accent-cyan); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="badge">MONGODB ATLAS 8.1+</span>
+    <span class="title">ReliefMesh: Operational Crisis Coordination Engine</span>
+  </div>
+  <div class="controls">
+    <span class="counter" id="slideNum">Slide 1 of 6</span>
+    <button class="btn" onclick="prevSlide()">‹ Prev</button>
+    <button class="btn btn-primary" onclick="nextSlide()">Next ›</button>
+  </div>
+</header>
+
+<div class="deck">
+
+  <!-- SLIDE 0: TITLE & KEYNOTE MANIFESTO -->
+  <div class="slide active" id="s0" style="justify-content: space-between; padding: 36px 54px;">
+    <div style="display: flex; flex-direction: column; gap: 6px;">
+      <div style="font-size: 12px; font-weight: 700; color: var(--mongo-green); letter-spacing: 0.08em; text-transform: uppercase;">
+        TEAM SCRIPTFLOW &bull; MONGODB HACKATHON 2026 &bull; TRACK 1: DISASTER RELIEF
+      </div>
+      <h1 style="font-size: 52px; font-weight: 800; letter-spacing: -0.03em; color: var(--text-white); line-height: 1.05;">
+        RELIEFMESH
+      </h1>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; color: var(--accent-cyan); letter-spacing: -0.01em;">
+        CRISIS STATE ENGINE // POWERED BY MONGODB ATLAS 8.1+
+      </div>
+      <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+        Vodapally Shreehith Sai &bull; Junnuru Sashank &bull; Mounika Dola &bull; Raskas Sai Karthik
+      </div>
+    </div>
+
+    <!-- Central Keynote Manifesto Card -->
+    <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid var(--mongo-green); border-radius: 12px; padding: 22px 28px; box-shadow: 0 8px 32px rgba(0, 237, 100, 0.08);">
+      <div style="font-size: 11px; font-weight: 800; color: var(--mongo-green); letter-spacing: 0.06em; text-transform: uppercase;">
+        THE CRISIS STATE GUARANTEE
+      </div>
+      <div style="font-size: 16px; font-weight: 600; font-style: italic; color: var(--text-white); margin-top: 8px; line-height: 1.5;">
+        "When physical disaster moves faster than the database, relief efforts collapse.<br>
+        ReliefMesh turns MongoDB into an active operational nervous system that coordinates field ambulances, rescue convoys, and emergency supply depots with zero cross-document locking."
+      </div>
+    </div>
+
+    <!-- 4 Hard Engineering Guarantee Pills -->
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+      <div class="card" style="border-color: var(--accent-cyan); gap: 6px; padding: 16px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--accent-cyan);">&lt; 5ms OCC CAS</div>
+        <div style="font-size: 12.5px; font-weight: 700; color: var(--text-white);">Zero Double-Allocations</div>
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.35;">Single-doc atomic CAS (__v + $inc) prevents phantom blood/supply claims under intense contention.</div>
+      </div>
+      <div class="card" style="border-color: var(--accent-amber); gap: 6px; padding: 16px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--accent-amber);">&lt; 80ms DELTA STREAMS</div>
+        <div style="font-size: 12.5px; font-weight: 700; color: var(--text-white);">Dynamic Flood Rerouting</div>
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.35;">Oplog change streams diff pre/post hazard polygons to flag compromised convoy routes before trucks hit water.</div>
+      </div>
+      <div class="card" style="border-color: var(--accent-purple); gap: 6px; padding: 16px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--accent-purple);">0-LAG SYNONYM FUSION</div>
+        <div style="font-size: 12.5px; font-weight: 700; color: var(--text-white);">Dialect to Clinical Catalog</div>
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.35;">Atlas Search synonym mappings resolve colloquial distress SMS ('khoon') to warehouse catalog with zero LLM timeout risk.</div>
+      </div>
+      <div class="card" style="border-color: var(--mongo-green); gap: 6px; padding: 16px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--mongo-green);">1 UNIFIED CONTROL PLANE</div>
+        <div style="font-size: 12.5px; font-weight: 700; color: var(--text-white);">Zero Infrastructure Sprawl</div>
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.35;">Consolidates Search, Vector, GeoJSON, ACID, and Streams into one managed engine running on fragile field power.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 1 -->
+  <div class="slide" id="s1">
+    <div class="slide-header">
+      <span class="slide-tag">Slide 01 | Strategic Problem Framing</span>
+      <h1 class="slide-title">The Operational Coherence Gap in Crisis Response</h1>
+      <p class="slide-sub">Why disaster platforms fail: Operational state drift between physical reality and emergency caches</p>
+    </div>
+    <div class="alert-banner">
+      <span class="alert-title">THE FATAL FAILURE MODE IN CRISIS OPERATIONS</span>
+      <p class="alert-quote">"Two ambulances. One blood bank with five units left. Both dispatchers see 'available.' Both drive.<br>That is not a data collection problem — it is an operational state-coherence problem, and it is what ReliefMesh kills."</p>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-header coral">THE 5 GROUND-LEVEL CRISIS TRAGEDIES (PAIN POINTS)</div>
+        <div class="pain-item">
+          <span class="pain-title">1. Ambulance Drivers | The Phantom Resource Tragedy</span>
+          <span class="pain-desc">Drives 45m through debris; arrives to find another NGO claimed blood 10m ago. Patient dies in transit. (Solved by Single-Doc OCC CAS).</span>
+        </div>
+        <div class="pain-item">
+          <span class="pain-title">2. Rescue Convoys | The Death Corridor Blind Dispatch</span>
+          <span class="pain-desc">Convoys dispatched on yesterday's route; levee breaches at 02:15 AM, truck enters flooded road at 02:40 AM and is swept away. (Solved by Delta Change Streams).</span>
+        </div>
+        <div class="pain-item">
+          <span class="pain-title">3. Distressed Citizens | The Vernacular Exclusion Gap</span>
+          <span class="pain-desc">Mother sends SMS 'khoon chahiye'; English ERPs reject it; cloud LLMs timeout on 2G cell networks. (Solved by Atlas Search Synonyms).</span>
+        </div>
+        <div class="pain-item">
+          <span class="pain-title">4. Incident Commanders | The Inter-Agency Distrust Paralysis</span>
+          <span class="pain-desc">Agencies hoard supplies due to post-crisis audit liability & blame games. (Solved by Living Incident Twin + Multi-Doc ACID Audit).</span>
+        </div>
+        <div class="pain-item">
+          <span class="pain-title">5. Field IT Operators | The Infrastructure Sprawl Collapse</span>
+          <span class="pain-desc">Running 5 clusters (Kafka, Postgres, Redis, Elastic) on generator power. Quorum drops -> all goes black. (Solved by 1 Managed Control Plane).</span>
+        </div>
+      </div>
+      <div class="card" style="justify-content: space-between;">
+        <div>
+          <div class="card-header">THE INTEGRATION GAP: USHAHIDI vs. SAHANA EDEN</div>
+          <p style="font-size: 13px; color: var(--text-white); margin-top: 8px; line-height: 1.45;">
+            <strong>Ushahidi Model:</strong> Rapid crowdsourcing, but purely observational. Zero reservation integrity, zero inventory tracking. Creates awareness without coordination.<br><br>
+            <strong>Sahana Eden Model:</strong> Structured logistics, but rigid relational schemas that choke under chaotic field updates. Normalized locking cascades into deadlocks during multi-agency rushes.
+          </p>
+        </div>
+        <div style="background: rgba(0,237,100,0.06); border: 1px solid var(--mongo-forest); border-radius: 8px; padding: 14px;">
+          <div style="font-size: 12px; font-weight: 800; color: var(--mongo-green);">THE FRESHNESS INVARIANT</div>
+          <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 2px;">"No resource allocation may outlive its physical ground truth."</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">One unified MongoDB Atlas engine: Semantic Search → Geospatial Pruning → Optimistic Reservation → Delta Invalidation.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide" id="s2">
+    <div class="slide-header">
+      <span class="slide-tag">Slide 02 | Domain Architecture</span>
+      <h1 class="slide-title">Domain Architecture — The 4-R Operational Spine</h1>
+      <p class="slide-sub">Four mandatory operational gates enforced before any crisis resource is dispatched to the field</p>
+    </div>
+    <div class="grid grid-4" style="flex: 1.4;">
+      <div class="card">
+        <div class="card-header">1. RELEVANT</div>
+        <div style="font-size: 11px; font-weight: 700; color: var(--accent-coral);">Tragedy Prevented:<br>The Vernacular Exclusion Gap</div>
+        <div style="font-size: 12px; color: var(--text-white);"><strong>Mechanism:</strong> Hybrid Semantic Vector + Lexical Search with Dialect Synonyms.</div>
+        <div style="font-size: 12px; color: var(--mongo-green);"><strong>MongoDB Native:</strong> Atlas Vector Search + Text Search via $rankFusion (8.1+).</div>
+        <div style="font-size: 11px; color: var(--text-muted);"><strong>External Boundary:</strong> Whisper API (Transcription) & OpenAI Embedding API.</div>
+      </div>
+      <div class="card">
+        <div class="card-header cyan">2. REACHABLE</div>
+        <div style="font-size: 11px; font-weight: 700; color: var(--accent-coral);">Tragedy Prevented:<br>The Death Corridor Blind Dispatch</div>
+        <div style="font-size: 12px; color: var(--text-white);"><strong>Mechanism:</strong> Geospatial Boundary Pre-filtering + Active Hazard Polygon Exclusion.</div>
+        <div style="font-size: 12px; color: var(--mongo-green);"><strong>MongoDB Native:</strong> 2dsphere Indexing with $geoIntersects on Routes.</div>
+        <div style="font-size: 11px; color: var(--text-muted);"><strong>External Boundary:</strong> OSRM Router Sidecar & Flood Model (HEC-RAS).</div>
+      </div>
+      <div class="card">
+        <div class="card-header">3. RESERVED</div>
+        <div style="font-size: 11px; font-weight: 700; color: var(--accent-coral);">Tragedy Prevented:<br>The Phantom Resource Tragedy</div>
+        <div style="font-size: 12px; color: var(--text-white);"><strong>Mechanism:</strong> Lock-free Single-Doc OCC Commit (CAS) + Multi-Doc ACID Audit Logs.</div>
+        <div style="font-size: 12px; color: var(--mongo-green);"><strong>MongoDB Native:</strong> Single-Doc updateOne with __v; ACID Multi-Doc Transactions.</div>
+        <div style="font-size: 11px; color: var(--text-muted);"><strong>External Boundary:</strong> None (Core WiredTiger Engine running in-database).</div>
+      </div>
+      <div class="card">
+        <div class="card-header cyan">4. RESILIENT</div>
+        <div style="font-size: 11px; font-weight: 700; color: var(--accent-coral);">Tragedy Prevented:<br>The Static Plan Paralysis</div>
+        <div style="font-size: 12px; color: var(--text-white);"><strong>Mechanism:</strong> Event-Driven Delta Invalidation on Expanding Flood Contours.</div>
+        <div style="font-size: 12px; color: var(--mongo-green);"><strong>MongoDB Native:</strong> Native Change Streams with Pre/Post Images + ASP.</div>
+        <div style="font-size: 11px; color: var(--text-muted);"><strong>External Boundary:</strong> River Gauge IoT Telemetry & MQTT Gateway.</div>
+      </div>
+    </div>
+    <div class="grid grid-2-even" style="flex: 0.8;">
+      <div class="card" style="border-color: var(--mongo-green);">
+        <div class="card-header">HOT ALLOCATION PATH: SINGLE-DOCUMENT OCC</div>
+        <p style="font-size: 12px; color: var(--text-white); line-height: 1.45;">
+          • Uses atomic conditional update: <code>updateOne({ _id, __v, availableQuantity: { $gte: qty } }, { $inc: { __v: 1 } })</code><br>
+          • WiredTiger document-level lock: zero distributed lock waits, zero deadlock risk, sub-5ms predicate check.<br>
+          • Contention surfaces as cheap failed predicate (modifiedCount: 0) triggering instant jittered rematch.
+        </p>
+      </div>
+      <div class="card" style="border-color: var(--accent-cyan);">
+        <div class="card-header cyan">CROSS-BOUNDARY: MULTI-DOCUMENT ACID TRANSACTIONS</div>
+        <p style="font-size: 12px; color: var(--text-white); line-height: 1.45;">
+          • Reserved strictly for multi-entity lifecycle commits spanning separate collections.<br>
+          • Atomically inserts active_mission record + locks resource_inventory allocation lease + appends audit_log.<br>
+          • Eliminates inter-agency blame games: non-repudiable cryptographic logging across agency boundaries.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="slide" id="s3">
+    <div class="slide-header">
+      <span class="slide-tag">Slide 03 | System Architecture</span>
+      <h1 class="slide-title">System Architecture & Dual-Branch Telemetry Ingestion</h1>
+      <p class="slide-sub">High-throughput time-series streaming combined with reactive spatial barrier calculation</p>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-header">END-TO-END REACTIVE PIPELINE FLOW</div>
+        <div class="pain-item">
+          <span class="pain-title">1. Field Ingestion Layer</span>
+          <span class="pain-desc">Citizen SMS/Voice via Twilio → Whisper API → Structured Living Incident Doc (GeoJSON + Embeddings). IoT River Gauges → MQTT Gateway → Real-time raw telemetry stream.</span>
+        </div>
+        <div class="pain-item">
+          <span class="pain-title">2. Atlas Stream Processing (ASP Dual-Branch)</span>
+          <span class="pain-desc">Branch A writes thousands of measurements into sensor_telemetry time-series collection. Branch B runs $setWindowFields with $derivative (rate-of-rise) over 5-minute tumbling windows.</span>
+        </div>
+        <div class="pain-item">
+          <span class="pain-title">3. The Hydraulic Model Boundary (HEC-RAS / Hydro-ML)</span>
+          <span class="pain-desc">When rate-of-rise breaches 25 cm/min threshold → ASP emits alert to external Flood Model Sidecar. Sidecar computes 2D Digital Elevation Model (DEM) fluid flow and writes Polygon to hazard_perimeters.</span>
+        </div>
+        <div class="pain-item">
+          <span class="pain-title">4. Reactive Change Stream Daemon</span>
+          <span class="pain-desc">Change Stream with Pre/Post Images calculates polygon delta (newly flooded area). Evaluates $geoIntersects against active_missions route LineString → Flags compromised convoys.</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 18px;">
+        <div class="card" style="border-color: var(--accent-coral);">
+          <div class="card-header coral">GOTCHA #1: TIME SERIES DUAL-BRANCHING (ASP)</div>
+          <p style="font-size: 12px; color: var(--text-white); line-height: 1.45;">
+            <strong>Internal Constraint:</strong> Time Series collections use columnar block compression. Measurements are stored in compressed buckets — NOT discrete document mutations.<br><br>
+            <span style="color: var(--accent-coral); font-weight: 700;">-> TIME SERIES COLLECTIONS DO NOT EMIT CHANGE STREAMS.</span><br><br>
+            <strong>The Dual-Branch Fix:</strong> ASP branches telemetry before storage: Branch A writes compressed historical series; Branch B fires operational threshold alerts.
+          </p>
+        </div>
+        <div class="card" style="border-color: var(--accent-coral);">
+          <div class="card-header coral">GOTCHA #2: THE POLYGON FABRICATION BOUNDARY</div>
+          <p style="font-size: 12px; color: var(--text-white); line-height: 1.45;">
+            <strong>The Physical Reality:</strong> A point gauge reading (water level at lat/long point) CANNOT magically produce a spatial flood polygon inside a database query. Inundation requires Digital Elevation Models (DEM) and fluid physics.<br><br>
+            <strong>The Boundary:</strong> MongoDB ASP detects hydrological rise-rate change; external Flood-Model Sidecar (HEC-RAS / Hydro-ML) calculates predicted flood polygon geometry; MongoDB owns 2dsphere indexing and reactive invalidation.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 -->
+  <div class="slide" id="s4">
+    <div class="slide-header">
+      <span class="slide-tag">Slide 04 | Core Technical Deep-Dive</span>
+      <h1 class="slide-title">Core Technical Deep-Dive (MongoDB 8.1+ Code Level)</h1>
+      <p class="slide-sub">Uniform $rankFusion, vernacular synonyms, adaptive retrieval gating probe, and single-doc CAS</p>
+    </div>
+    <div class="grid grid-2">
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="card" style="flex: 1;">
+          <div class="card-header">1. INDEXES & ATLAS SEARCH SYNONYMS</div>
+          <div class="code-block">// 2dsphere Geospatial Indexes
+db.resource_inventory.createIndex({ location: "2dsphere" });
+db.hazard_perimeters.createIndex({ polygon: "2dsphere" });
+db.active_missions.createIndex({ "route.geometry": "2dsphere" });
+
+// Atlas Search Synonyms (synonym_mappings collection)
+{ mappingType: "equivalent", synonyms: ["khoon", "blood", "rakt"] }
+{ mappingType: "equivalent", synonyms: ["o-negative", "o neg", "o-neg"] }
+// Dialect SMS maps to clinical SKUs without cloud LLM APIs!</div>
+        </div>
+        <div class="card" style="flex: 1.2;">
+          <div class="card-header">2b. ADAPTIVE RETRIEVAL GATING ($searchMeta PROBE)</div>
+          <div class="code-block">// Probe metadata-only count (zero document fetch)
+const probe = await db.resource_inventory.aggregate([
+  { $searchMeta: { index: "vector_and_keyword_index",
+      compound: { must: [{ text: { query: "khoon o-neg", path: "itemDescription", synonyms: "disaster_synonyms", matchCriteria: "any" } }],
+                  filter: [{ equals: { path: "status", value: "available" } }] }, count: { type: "total" } } }
+]).toArray();
+
+// Bounded expansion (if count < 3 -> radius = min(100, radius*2))
+// Embedding preflight (3s timeout -> degraded mode drops semantic branch)
+// Self-healing retrieval: observes recall, widens net, survives AI outages!</div>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 14px;">
+        <div class="card" style="flex: 1.4;">
+          <div class="card-header">2. UNIFORM $rankFusion PIPELINE (MONGODB 8.1+)</div>
+          <div class="code-block">db.resource_inventory.aggregate([
+  { $rankFusion: {
+      input: {
+        pipelines: {
+          semantic: [
+            { $vectorSearch: { index: "vector_and_keyword_index", path: "embedding",
+                queryVector: emb, numCandidates: 100, limit: 20, filter: { status: "available" } } }
+          ],
+          keyword: [
+            { $search: { index: "vector_and_keyword_index",
+                text: { query: reqText, path: "itemDescription", synonyms: "disaster_synonyms", matchCriteria: "any" } } },
+            { $match: { status: "available" } }, { $limit: 20 }
+          ],
+          proximity: [
+            { $geoNear: { near: userPt, spherical: true, query: { status: "available" } } },
+            { $limit: 20 }
+          ]
+        }
+      }
+      // Weights omitted: Uniform default RRF weights (1 each)
+      // Preserves zero score calibration and protects synonyms!
+  } }
+]);</div>
+        </div>
+        <div class="card" style="flex: 0.9;">
+          <div class="card-header">3. HIGH-CONTENTION COMMIT (OCC CAS WITH $slice)</div>
+          <div class="code-block">const res = await db.resource_inventory.updateOne(
+  { _id: depotId, __v: curV, availableQuantity: { $gte: reqQty }, status: "available" },
+  { $inc: { availableQuantity: -reqQty, __v: 1 },
+    $push: { allocations: { $each: [{ incId, qty, at: new Date() }], $slice: -10 } } }
+);
+// "Search Proposes, CAS Disposes": Index lag is safe; live state verified at commit!
+// modifiedCount === 0 triggers jittered rematch against Candidate #2, #3, or #4.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 -->
+  <div class="slide" id="s5">
+    <div class="slide-header">
+      <span class="slide-tag">Slide 05 | The Reactive Loop</span>
+      <h1 class="slide-title">The Reactive Loop — Delta-Scoped Invalidation</h1>
+      <p class="slide-sub">Oplog-backed change streams with pre/post-images, spatial delta diffing, and cold-start resync</p>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-header">DELTA-SCOPED INVALIDATION WITH PRE/POST-IMAGES</div>
+        <div class="code-block">// 1. Enable Pre/Post-Images on Hazard Collection
+db.runCommand({ collMod: "hazard_perimeters", changeStreamPreAndPostImages: { enabled: true } });
+
+// 2. Watch Change Stream with targeted polygon filter
+const stream = db.hazard_perimeters.watch(
+  [{ $match: { operationType: { $in: ["insert", "update", "replace"] },
+               "updateDescription.updatedFields.polygon": { $exists: true } } }],
+  { fullDocumentBeforeChange: "whenAvailable" }
+);
+
+stream.on("change", async (change) => {
+  const postPolygon = change.fullDocument.polygon;
+  const prePolygon  = change.fullDocumentBeforeChange?.polygon;
+
+  // Calculate newly flooded delta area (postPolygon - prePolygon)
+  const deltaArea = prePolygon ? turf.difference(postPolygon, prePolygon) : postPolygon;
+
+  // Invalidate ONLY missions crossing the newly expanded flood area
+  const compromised = await db.active_missions.find({
+    status: "in_transit",
+    "route.geometry": { $geoIntersects: { $geometry: deltaArea } }
+  }).toArray();
+
+  for (const m of compromised) {
+    await db.active_missions.updateOne(
+      { _id: m._id, __v: m.__v },
+      { $set: { status: "route_compromised", flaggedAt: new Date() }, $inc: { __v: 1 } }
+    );
+    rerouteWorker.dispatch(m._id); // Trigger OSRM detour
+  }
+});</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 18px;">
+        <div class="card" style="border-color: var(--accent-cyan);">
+          <div class="card-header cyan">STREAM CHECKPOINTING & COLD-START RECOVERY</div>
+          <p style="font-size: 12px; color: var(--text-white); line-height: 1.45;">
+            <strong>Oplog-Backed Checkpoints:</strong> Workers store resumeToken (_id of change event) in stream_checkpoints. Reconnect uses <code>.watch([], { resumeAfter: lastSavedToken })</code>.<br><br>
+            <strong>Handling ChangeStreamHistoryLost (Oplog Expiry):</strong> If worker downtime > oplog retention window, token expires. Daemon catches error 286:<br>
+            1. Initiates Cold-Start Full Resync: scans ALL active in_transit missions against current active hazard perimeters via $geoIntersects.<br>
+            2. Checkpoints latest oplog cluster timestamp.<br>
+            3. Re-establishes clean Change Stream cursor.
+          </p>
+        </div>
+        <div class="card" style="border-color: var(--mongo-green);">
+          <div class="card-header">THE FRESHNESS INVARIANT BOUND & BENCHMARK</div>
+          <p style="font-size: 12px; color: var(--text-white); line-height: 1.45;">
+            <strong>Mathematical Bound on Freshness:</strong><br>
+            <code>Δt_stale <= t_oplog_propagation + t_spatial_eval + t_worker_commit</code><br><br>
+            • Invalidation latency: &lt; 80ms from polygon write to mission flag.<br>
+            • OSRM detour route calculated & dispatched: &lt; 450ms.<br>
+            • Total reaction time: &lt; 600ms (Convoy rerouted kilometers before approaching flood waters).<br><br>
+            <strong>Zero Polling. Zero Kafka.</strong> The database detects the river breach before dispatchers see news reports.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 -->
+  <div class="slide" id="s6">
+    <div class="slide-header">
+      <span class="slide-tag">Slide 06 | Architecture Audit</span>
+      <h1 class="slide-title">Honest Architecture Audit — PostgreSQL vs. MongoDB Atlas</h1>
+      <p class="slide-sub">De-rigged trade-off matrix: Conceding road routing, auditing CAS parity, and establishing operational survival</p>
+    </div>
+    <div class="card" style="flex: 1.4; padding: 0; overflow-y: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 18%;">Dimension</th>
+            <th style="width: 27%;">PostgreSQL (+PostGIS / pgvector) + Debezium + Kafka</th>
+            <th style="width: 27%;">MongoDB Atlas (8.1+)</th>
+            <th style="width: 28%;">Architectural Verdict</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Road Network Routing</td>
+            <td><strong>WINNER:</strong> Native pgRouting computes Dijkstra/A* shortest path directly in SQL.</td>
+            <td>Externalized to OSRM sidecar. $graphLookup is inadequate for road graphs.</td>
+            <td><strong>Concession:</strong> MongoDB does not do road routing. OSRM owns road graphs; MongoDB owns spatial barriers.</td>
+          </tr>
+          <tr>
+            <td>Relational Integrity</td>
+            <td><strong>WINNER:</strong> Declarative foreign keys across normalized schemas with compile-time checks.</td>
+            <td>Document model + schema validation via $and: [ { $jsonSchema }, { $expr } ].</td>
+            <td>PostgreSQL excels at fragmented tables; MongoDB excels at cohesive operational aggregates.</td>
+          </tr>
+          <tr>
+            <td>Single-Row CAS Contention</td>
+            <td><strong>PARITY:</strong> Under default READ COMMITTED, concurrent UPDATEs re-evaluate WHERE -> 0 rows.</td>
+            <td><strong>PARITY:</strong> Single-document CAS ($inc: { __v: 1 }) returns modifiedCount: 0.</td>
+            <td><strong>Honest Audit:</strong> Both engines handle single-row CAS with cheap failed predicates. Edge is the loop, not the CAS.</td>
+          </tr>
+          <tr>
+            <td>Reactive CDC Loop</td>
+            <td>Requires external Debezium workers + Kafka cluster + replication slots to stream changes.</td>
+            <td><strong>WINNER:</strong> Native Resumable Change Streams backed by the oplog with pre/post-images.</td>
+            <td><strong>Core Differentiator:</strong> MongoDB eliminates Kafka and Debezium for this bounded loop without infrastructure sprawl.</td>
+          </tr>
+          <tr>
+            <td>Operational Control Plane</td>
+            <td>3 independent distributed systems to deploy, monitor, and sync (PostgreSQL + Debezium + Kafka).</td>
+            <td><strong>WINNER:</strong> 1 managed data control plane (Vector + Geo + Transactions + Streams).</td>
+            <td><strong>SURVIVAL FEATURE:</strong> Under diesel generator cuts and 80% packet loss, restarting 1 engine saves lives vs debugging 5.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="flex: 0.6; border-color: var(--mongo-green); justify-content: center;">
+      <div style="font-size: 15px; font-weight: 800; color: var(--mongo-green);">"MongoDB turns changing disaster state into fresh operational decisions."</div>
+      <div style="font-size: 13px; color: var(--text-white); margin-top: 4px; line-height: 1.45;">
+        ReliefMesh enforces the freshness invariant: no allocation outlives its ground truth. We did not choose MongoDB because it wins every micro-benchmark; we chose it because crisis coordination requires an <strong>integrated reactive loop</strong> — retrieval, spatial safety, atomic commitment, and streaming invalidation — in a single, resilient data control plane.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let currentSlide = 0;
+  const totalSlides = 7;
+
+  function updateSlide() {
+    for (let i = 0; i < totalSlides; i++) {
+      const el = document.getElementById('s' + i);
+      if (el) {
+        if (i === currentSlide) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      }
+    }
+    const indicator = document.getElementById('slideNum');
+    if (indicator) {
+      indicator.innerText = currentSlide === 0 
+        ? `Title Slide | 1 of ${totalSlides}` 
+        : `Slide ${currentSlide} of 6`;
+    }
+  }
+
+  function nextSlide() {
+    if (currentSlide < totalSlides - 1) {
+      currentSlide++;
+      updateSlide();
+    }
+  }
+
+  function prevSlide() {
+    if (currentSlide > 0) {
+      currentSlide--;
+      updateSlide();
+    }
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      prevSlide();
+    } else if (e.key === 'Home') {
+      currentSlide = 0;
+      updateSlide();
+    } else if (e.key === 'End') {
+      currentSlide = totalSlides - 1;
+      updateSlide();
+    }
+  });
+</script>
+
+</body>
+</html>
