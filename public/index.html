@@ -488,6 +488,12 @@
     <button class="btn btn-danger" onclick="triggerRiverBreach(4.8)">
       🌊 Flood Breach: River Gauge RG-04 (4.8m Surge)
     </button>
+    <button class="btn btn-subtle" onclick="triggerVoiceIngest()">
+      🎙️ Voice Ping (Whisper AI)
+    </button>
+    <button class="btn btn-subtle" onclick="startConvoyTracking()">
+      🚗 Track Convoy Movement
+    </button>
     <button class="btn btn-subtle" onclick="restockDepots()">
       📦 Restock Depots (+15)
     </button>
@@ -1173,12 +1179,58 @@
       }
     }
 
-    async function resetStateBaseline() {
+    async function triggerVoiceIngest() {
+      logToTerminal("🎙️ Ingesting Vernacular Dialect Audio (Whisper Speech-to-Text Pipeline)...", "log-info");
+      setInspectorTab('tab-search');
+      document.querySelectorAll('.tab-item')[0].classList.add('active');
+
       try {
-        await fetch("/api/reset", { method: "POST" });
+        const res = await fetch("/api/voice/ingest", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            audioText: "bhaiya bypass pe paani bhar gaya, khoon aur dawa chahiye urgently"
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          logToTerminal(`✓ [WHISPER TRANSCRIPTION] "${data.transcription.rawTranscribedText}" (${data.transcription.detectedLanguage}, Confidence: ${data.transcription.confidence * 100}%)`, "log-success");
+          document.getElementById("query-field").value = data.transcription.rawTranscribedText;
+          runSearchProbe();
+        }
       } catch (err) {
         console.error(err);
       }
+    }
+
+    let convoyMovementTimer = null;
+    function startConvoyTracking() {
+      logToTerminal("🚗 Starting live GPS vehicle telemetry along Highway 16 corridor...", "log-info");
+      if (convoyMovementTimer) clearInterval(convoyMovementTimer);
+
+      let step = 0;
+      convoyMovementTimer = setInterval(async () => {
+        try {
+          const res = await fetch("/api/missions/simulate-movement", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ missionId: "MISSION-104", stepIndex: step })
+          });
+          const data = await res.json();
+          if (data.success && missionMarkersMap["MISSION-104"]) {
+            const [lng, lat] = data.targetCoord;
+            missionMarkersMap["MISSION-104"].setLatLng([lat, lng]);
+            logToTerminal(`[GPS TELEMETRY] Convoy Alpha waypoint #${step + 1} at [${lat.toFixed(4)}, ${lng.toFixed(4)}]`, "log-info");
+          }
+          step++;
+          if (step >= 6) {
+            clearInterval(convoyMovementTimer);
+            logToTerminal("✓ Convoy Alpha transit checkpoint reached.", "log-success");
+          }
+        } catch (e) {
+          clearInterval(convoyMovementTimer);
+        }
+      }, 2000);
     }
 
     // Startup

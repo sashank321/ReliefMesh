@@ -230,6 +230,62 @@ app.post("/api/reset", async (req, res) => {
   }
 });
 
+// 9. Voice Audio Emergency Ingestion (Whisper AI Simulation + Vernacular Mapping)
+app.post("/api/voice/ingest", async (req, res) => {
+  try {
+    const { audioText = "bhaiya bypass pe paani bhar gaya khoon aur dawa chahiye", coordinates = [80.2680, 13.0810] } = req.body;
+    
+    // Simulates Whisper multilingual transcription & normalized dialect extraction
+    const transcription = {
+      rawTranscribedText: audioText,
+      detectedLanguage: "hi-IN (Hindi Dialect)",
+      confidence: 0.96,
+      extractedSKUs: ["BLOOD-O-NEG", "MEDICINE-SURGICAL"],
+      inferredUrgency: "CRITICAL"
+    };
+
+    broadcast("VOICE_INGESTED", transcription);
+
+    // Pipe directly into 4-R Adaptive Retrieval
+    const retrievalResult = await retrievalService.retrieveCandidates(audioText, coordinates, {
+      simulateApiTimeout: false,
+      maxCandidates: 5
+    });
+
+    res.json({
+      success: true,
+      transcription,
+      retrieval: retrievalResult
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 10. Vehicle Live Waypoint Movement Simulation
+app.post("/api/missions/simulate-movement", async (req, res) => {
+  try {
+    const { missionId = "MISSION-104", stepIndex = 0 } = req.body;
+    const db = getDb();
+    const mission = await db.collection("active_missions").findOne({ _id: missionId });
+    if (!mission) return res.status(404).json({ success: false, error: "Mission not found" });
+
+    const coordinates = mission.route.geometry.coordinates;
+    const targetCoord = coordinates[Math.min(stepIndex, coordinates.length - 1)];
+
+    broadcast("VEHICLE_MOVED", {
+      missionId,
+      stepIndex,
+      coordinates: targetCoord,
+      status: mission.status
+    });
+
+    res.json({ success: true, missionId, targetCoord, stepIndex });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // Start Server & Daemon
 const PORT = process.env.PORT || 3000;
 
